@@ -3,6 +3,7 @@ package dragon
 import (
 	"bufio"
 	"go/build"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -23,7 +24,7 @@ func stdLibs(libChan chan lib) {
 	for _, f := range apiFiles {
 		r, err := os.Open(filepath.Join(apiDir, f))
 		if err != nil {
-			continue
+			log.Fatal(err)
 		}
 
 		wg.Add(1)

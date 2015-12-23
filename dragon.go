@@ -1,8 +1,16 @@
 package dragon
 
-import "sync"
+import (
+	"errors"
+	"os"
+	"sync"
+)
 
 func Imports() error {
+
+	if !existGoImports() {
+		return errors.New("goimports command isn't installed.")
+	}
 
 	libChan := make(chan lib, 1000)
 	done := make(chan struct{})
@@ -35,4 +43,13 @@ type lib struct {
 	pkg    string
 	object string
 	path   string
+}
+
+func existGoImports() bool {
+	for _, path := range [...]string{outPath(), cmdPath()} {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
 }
