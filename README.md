@@ -32,6 +32,11 @@ new `goimports` have stdlib and all GOPATH's libs mappings, it's very fast.
 $ go get github.com/monochromegane/dragon-imports/...
 ```
 
+## ToDo
+
+- File system notification.
+- Ignore option.
+
 ## Contribution
 
 1. Fork it
