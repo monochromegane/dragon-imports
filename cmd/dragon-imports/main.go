@@ -1,9 +1,16 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"os"
+
+	"github.com/monochromegane/dragon-imports"
 )
 
 func main() {
-	fmt.Printf("Hello, world\n")
+	err := dragon.Imports()
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
 }
