@@ -15,7 +15,7 @@ func Imports() error {
 	libChan := make(chan lib, 1000)
 	done := make(chan struct{})
 
-	go out(libChan, done)
+	go updateZstdlib(libChan, done)
 
 	var wg sync.WaitGroup
 	wg.Add(2)

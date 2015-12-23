@@ -4,13 +4,24 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"sort"
 )
 
-func out(libChan chan lib, done chan struct{}) {
+func updateZstdlib(libChan chan lib, done chan struct{}) {
+	f, err := os.OpenFile(filepath.Join(outPath(), "zstdlib.go"), os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	out(libChan, done, f)
+	f.Close()
+}
+
+func out(libChan chan lib, done chan struct{}, w io.Writer) {
 	libs := map[string]lib{}
 	ambiguous := map[string]bool{}
 	var keys []string
@@ -45,16 +56,8 @@ func out(libChan chan lib, done chan struct{}) {
 		}
 	}
 	outf("}\n")
-	fmtbuf, err := format.Source(buf.Bytes())
-	if err != nil {
-		log.Fatal(err)
-	}
-	f, err := os.OpenFile(filepath.Join(outPath(), "zstdlib.go"), os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	f.Write(fmtbuf)
-	f.Close()
+	fmtbuf, _ := format.Source(buf.Bytes())
+	w.Write(fmtbuf)
 	done <- struct{}{}
 }
 
