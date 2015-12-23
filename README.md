@@ -26,6 +26,17 @@ After run the command, your goimports will become fast :dizzy:
 
 new `goimports` have stdlib and all GOPATH's libs mappings, it's very fast.
 
+## Return to the original goimports
+
+You can return to the original goimports by the following:
+
+```sh
+$ cd $GOPATH/src/golang.org/x/tools
+$ git checkout imports/zstdlib.go
+$ cd $GOPATH/src/golang.org/x/tools/cmd/goimports
+$ go install -a .
+```
+
 ## Installation
 
 ```sh
