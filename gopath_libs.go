@@ -4,7 +4,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -12,9 +11,9 @@ import (
 func gopathLibs(libChan chan lib) {
 
 	for _, srcDir := range srcDirs() {
-		filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
+		concurrentWalk(srcDir, func(path string, info fileInfo) error {
 
-			if info.IsDir() {
+			if info.isDir(false) {
 				name := info.Name()
 				if name == "" || name[0] == '.' || name[0] == '_' || name == "testdata" {
 					return filepath.SkipDir
