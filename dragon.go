@@ -25,6 +25,9 @@ func Imports() error {
 	wg.Wait()
 	close(libChan)
 	<-done
+
+	install()
+
 	return nil
 }
 
