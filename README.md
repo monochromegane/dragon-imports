@@ -1,4 +1,4 @@
-# dragon-imports
+# dragon-imports [![Build Status](https://travis-ci.org/monochromegane/dragon-imports.svg?branch=master)](https://travis-ci.org/monochromegane/dragon-imports)
 
 A tool for speedup goimports command :dragon:
 
