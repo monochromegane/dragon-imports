@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-type walkFunc func(path string, info fileInfo) error
+type walkFunc func(info fileInfo) error
 
 func concurrentWalk(root string, walkFn walkFunc) error {
 	info, err := os.Lstat(root)
@@ -15,11 +15,11 @@ func concurrentWalk(root string, walkFn walkFunc) error {
 		return err
 	}
 	sem := make(chan struct{}, 16)
-	return walk(root, newFileInfo(root, info), walkFn, sem)
+	return walk(newFileInfo(root, info), walkFn, sem)
 }
 
-func walk(path string, info fileInfo, walkFn walkFunc, sem chan struct{}) error {
-	walkError := walkFn(path, info)
+func walk(info fileInfo, walkFn walkFunc, sem chan struct{}) error {
+	walkError := walkFn(info)
 	if walkError != nil {
 		if info.IsDir() && walkError == filepath.SkipDir {
 			return nil
@@ -31,6 +31,7 @@ func walk(path string, info fileInfo, walkFn walkFunc, sem chan struct{}) error 
 		return nil
 	}
 
+	path := info.path
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		return err
@@ -38,17 +39,17 @@ func walk(path string, info fileInfo, walkFn walkFunc, sem chan struct{}) error 
 
 	wg := &sync.WaitGroup{}
 	for _, file := range files {
-		f := newFileInfo(path, file)
+		f := newFileInfo(filepath.Join(path, file.Name()), file)
 		select {
 		case sem <- struct{}{}:
 			wg.Add(1)
-			go func(path string, file fileInfo, wg *sync.WaitGroup) {
+			go func(file fileInfo, wg *sync.WaitGroup) {
 				defer wg.Done()
 				defer func() { <-sem }()
-				walk(path, file, walkFn, sem)
-			}(filepath.Join(path, file.Name()), f, wg)
+				walk(file, walkFn, sem)
+			}(f, wg)
 		default:
-			walk(filepath.Join(path, file.Name()), f, walkFn, sem)
+			walk(f, walkFn, sem)
 		}
 	}
 	wg.Wait()

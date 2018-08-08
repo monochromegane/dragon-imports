@@ -11,7 +11,7 @@ import (
 func gopathLibs(libChan chan lib) {
 
 	for _, srcDir := range srcDirs() {
-		concurrentWalk(srcDir, func(path string, info fileInfo) error {
+		concurrentWalk(srcDir, func(info fileInfo) error {
 
 			if info.isDir(false) {
 				name := info.Name()
@@ -27,6 +27,7 @@ func gopathLibs(libChan chan lib) {
 				return nil
 			}
 
+			path := info.path
 			fset := token.NewFileSet()
 			f, err := parser.ParseFile(fset, path, nil, 0)
 			if err != nil {
