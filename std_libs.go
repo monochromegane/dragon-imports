@@ -3,13 +3,13 @@ package dragon
 import (
 	"bufio"
 	"go/build"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
-	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -17,18 +17,15 @@ var (
 	sym      = regexp.MustCompile(`^pkg (\S+).*?, (?:var|func|type|const) ([A-Z]\w*)`)
 )
 
-func stdLibs(libChan chan lib) {
+func stdLibs(libChan chan lib) error {
 	apiDir := filepath.Join(build.Default.GOROOT, "api")
-
-	var wg sync.WaitGroup
+	eg := &errgroup.Group{}
 	for _, f := range apiFiles {
 		r, err := os.Open(filepath.Join(apiDir, f))
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
-
-		wg.Add(1)
-		go func() {
+		eg.Go(func() error {
 			sc := bufio.NewScanner(r)
 			for sc.Scan() {
 				l := sc.Text()
@@ -45,8 +42,8 @@ func stdLibs(libChan chan lib) {
 					}
 				}
 			}
-			wg.Done()
-		}()
+			return sc.Err()
+		})
 	}
-	wg.Wait()
+	return eg.Wait()
 }
