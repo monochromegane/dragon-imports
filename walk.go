@@ -4,7 +4,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type walkFunc func(info fileInfo) error
@@ -37,21 +38,20 @@ func walk(info fileInfo, walkFn walkFunc, sem chan struct{}) error {
 		return err
 	}
 
-	wg := &sync.WaitGroup{}
+	eg := &errgroup.Group{}
 	for _, file := range files {
 		f := newFileInfo(filepath.Join(path, file.Name()), file)
 		select {
 		case sem <- struct{}{}:
-			wg.Add(1)
-			go func(file fileInfo, wg *sync.WaitGroup) {
-				defer wg.Done()
+			eg.Go(func() error {
 				defer func() { <-sem }()
-				walk(file, walkFn, sem)
-			}(f, wg)
+				return walk(f, walkFn, sem)
+			})
 		default:
-			walk(f, walkFn, sem)
+			if err := walk(f, walkFn, sem); err != nil {
+				return err
+			}
 		}
 	}
-	wg.Wait()
-	return nil
+	return eg.Wait()
 }
