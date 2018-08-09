@@ -7,9 +7,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// Imports generate zstdlib.go from api files and libs in GOPATH.
 func Imports() error {
 	if !existGoImports() {
-		return errors.New("goimports command isn't installed.")
+		return errors.New("goimports command isn't installed")
 	}
 
 	libChan := make(chan lib, 1000)
