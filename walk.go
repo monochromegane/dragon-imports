@@ -4,10 +4,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
-type walkFunc func(path string, info fileInfo) error
+type walkFunc func(info fileInfo) error
 
 func concurrentWalk(root string, walkFn walkFunc) error {
 	info, err := os.Lstat(root)
@@ -15,11 +16,11 @@ func concurrentWalk(root string, walkFn walkFunc) error {
 		return err
 	}
 	sem := make(chan struct{}, 16)
-	return walk(root, newFileInfo(root, info), walkFn, sem)
+	return walk(newFileInfo(root, info), walkFn, sem)
 }
 
-func walk(path string, info fileInfo, walkFn walkFunc, sem chan struct{}) error {
-	walkError := walkFn(path, info)
+func walk(info fileInfo, walkFn walkFunc, sem chan struct{}) error {
+	walkError := walkFn(info)
 	if walkError != nil {
 		if info.IsDir() && walkError == filepath.SkipDir {
 			return nil
@@ -31,26 +32,26 @@ func walk(path string, info fileInfo, walkFn walkFunc, sem chan struct{}) error 
 		return nil
 	}
 
+	path := info.path
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		return err
 	}
 
-	wg := &sync.WaitGroup{}
+	eg := &errgroup.Group{}
 	for _, file := range files {
-		f := newFileInfo(path, file)
+		f := newFileInfo(filepath.Join(path, file.Name()), file)
 		select {
 		case sem <- struct{}{}:
-			wg.Add(1)
-			go func(path string, file fileInfo, wg *sync.WaitGroup) {
-				defer wg.Done()
+			eg.Go(func() error {
 				defer func() { <-sem }()
-				walk(path, file, walkFn, sem)
-			}(filepath.Join(path, file.Name()), f, wg)
+				return walk(f, walkFn, sem)
+			})
 		default:
-			walk(filepath.Join(path, file.Name()), f, walkFn, sem)
+			if err := walk(f, walkFn, sem); err != nil {
+				return err
+			}
 		}
 	}
-	wg.Wait()
-	return nil
+	return eg.Wait()
 }

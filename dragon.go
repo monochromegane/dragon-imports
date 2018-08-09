@@ -3,40 +3,39 @@ package dragon
 import (
 	"errors"
 	"os"
-	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 func Imports() error {
-
 	if !existGoImports() {
 		return errors.New("goimports command isn't installed.")
 	}
 
 	libChan := make(chan lib, 1000)
-	done := make(chan struct{})
-
-	go updateZstdlib(libChan, done)
-
-	var wg sync.WaitGroup
-	wg.Add(2)
-
+	done := make(chan error)
 	go func() {
-		stdLibs(libChan)
-		wg.Done()
+		done <- updateZstdlib(libChan)
 	}()
 
-	go func() {
-		gopathLibs(libChan)
-		wg.Done()
-	}()
-
-	wg.Wait()
+	eg := &errgroup.Group{}
+	eg.Go(func() error {
+		return stdLibs(libChan)
+	})
+	eg.Go(func() error {
+		return gopathLibs(libChan)
+	})
+	err := eg.Wait()
+	if err != nil {
+		return err
+	}
 	close(libChan)
-	<-done
 
-	install()
-
-	return nil
+	err = <-done
+	if err != nil {
+		return err
+	}
+	return install()
 }
 
 type lib struct {

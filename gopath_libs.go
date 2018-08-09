@@ -1,21 +1,54 @@
 package dragon
 
 import (
+	"bufio"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"os"
 	"path/filepath"
 	"strings"
 )
 
-func gopathLibs(libChan chan lib) {
+func fetchGoImportsIgnore(src string) (map[string]struct{}, error) {
+	dirs := make(map[string]struct{})
+	f, err := os.Open(filepath.Join(src, ".goimportsignore"))
+	if err != nil {
+		return dirs, nil
+	}
+	scr := bufio.NewScanner(f)
+	for scr.Scan() {
+		dir := scr.Text()
+		if !strings.HasPrefix(dir, "#") {
+			dirs[filepath.Join(src, dir)] = struct{}{}
+		}
+	}
+	return dirs, scr.Err()
+}
 
+func isSkipDir(fi fileInfo, ignoreDirs map[string]struct{}) bool {
+	name := fi.Name()
+	switch name {
+	case "", "testdata", "vendor":
+		return true
+	}
+	switch name[0] {
+	case '.', '_':
+		return true
+	}
+	_, ok := ignoreDirs[filepath.Join(fi.path, fi.Name())]
+	return ok
+}
+
+func gopathLibs(libChan chan lib) error {
 	for _, srcDir := range srcDirs() {
-		concurrentWalk(srcDir, func(path string, info fileInfo) error {
-
+		ignoreDirs, err := fetchGoImportsIgnore(srcDir)
+		if err != nil {
+			return err
+		}
+		err = concurrentWalk(srcDir, func(info fileInfo) error {
 			if info.isDir(false) {
-				name := info.Name()
-				if name == "" || name[0] == '.' || name[0] == '_' || name == "testdata" {
+				if isSkipDir(info, ignoreDirs) {
 					return filepath.SkipDir
 				}
 				return nil
@@ -27,6 +60,7 @@ func gopathLibs(libChan chan lib) {
 				return nil
 			}
 
+			path := info.path
 			fset := token.NewFileSet()
 			f, err := parser.ParseFile(fset, path, nil, 0)
 			if err != nil {
@@ -54,5 +88,9 @@ func gopathLibs(libChan chan lib) {
 			}
 			return nil
 		})
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }

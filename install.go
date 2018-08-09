@@ -6,10 +6,11 @@ import (
 	"path/filepath"
 )
 
-func install() {
+func install() error {
 	cmd := exec.Command("go", "install", "-a", ".")
 	cmd.Dir = cmdPath()
-	cmd.Run()
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
 
 func cmdPath() string {
