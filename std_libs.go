@@ -13,8 +13,20 @@ import (
 )
 
 var (
-	apiFiles = [...]string{"go1.txt", "go1.1.txt", "go1.2.txt", "go1.3.txt", "go1.4.txt", "go1.5.txt"}
-	sym      = regexp.MustCompile(`^pkg (\S+).*?, (?:var|func|type|const) ([A-Z]\w*)`)
+	apiFiles = [...]string{
+		"go1.txt",
+		"go1.1.txt",
+		"go1.2.txt",
+		"go1.3.txt",
+		"go1.4.txt",
+		"go1.5.txt",
+		"go1.6.txt",
+		"go1.7.txt",
+		"go1.8.txt",
+		"go1.9.txt",
+		"go1.10.txt",
+	}
+	sym = regexp.MustCompile(`^pkg (\S+).*?, (?:var|func|type|const) ([A-Z]\w*)`)
 )
 
 func stdLibs(libChan chan lib) error {
