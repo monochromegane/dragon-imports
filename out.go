@@ -53,6 +53,10 @@ func out(libChan chan lib, w io.Writer) error {
 			outf("\t%q: %q,\n", key, libs[key].path)
 		}
 	}
+	outf("\n")
+	for _, sym := range [...]string{"Alignof", "ArbitraryType", "Offsetof", "Pointer", "Sizeof"} {
+		outf("\t%q: %q,\n", "unsafe."+sym, "unsafe")
+	}
 	outf("}\n")
 	fmtbuf, _ := format.Source(buf.Bytes())
 	_, err := w.Write(fmtbuf)
