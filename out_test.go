@@ -23,5 +23,11 @@ func ExampleOut() {
 	//
 	// var stdlib = map[string]string{
 	//	"dragon.Imports": "github.com/monochromegane/dragon-imports",
+	//
+	//	"unsafe.Alignof":       "unsafe",
+	//	"unsafe.ArbitraryType": "unsafe",
+	//	"unsafe.Offsetof":      "unsafe",
+	//	"unsafe.Pointer":       "unsafe",
+	//	"unsafe.Sizeof":        "unsafe",
 	// }
 }
