@@ -2,6 +2,7 @@ package dragon
 
 import (
 	"errors"
+	"io/ioutil"
 	"os"
 
 	"golang.org/x/sync/errgroup"
@@ -15,8 +16,14 @@ func Imports() error {
 
 	libChan := make(chan lib, 1000)
 	done := make(chan error)
+	tmp, err := ioutil.TempFile("", "dragon-imports")
+	if err != nil {
+		return err
+	}
+	defer tmp.Close()
+
 	go func() {
-		done <- updateZstdlib(libChan)
+		done <- out(libChan, tmp)
 	}()
 
 	eg := &errgroup.Group{}
@@ -26,7 +33,7 @@ func Imports() error {
 	eg.Go(func() error {
 		return gopathLibs(libChan)
 	})
-	err := eg.Wait()
+	err = eg.Wait()
 	if err != nil {
 		return err
 	}
@@ -36,7 +43,8 @@ func Imports() error {
 	if err != nil {
 		return err
 	}
-	return install()
+
+	return installUsing(tmp)
 }
 
 type lib struct {
