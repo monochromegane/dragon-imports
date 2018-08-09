@@ -10,15 +10,6 @@ import (
 	"sort"
 )
 
-func updateZstdlib(libChan chan lib) error {
-	f, err := os.OpenFile(filepath.Join(outPath(), "zstdlib.go"), os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	return out(libChan, f)
-}
-
 func out(libChan chan lib, w io.Writer) error {
 	libs := map[string]lib{}
 	ambiguous := map[string]bool{}

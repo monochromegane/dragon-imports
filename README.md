@@ -26,13 +26,13 @@ After run the command, your goimports will become fast :dizzy:
 
 new `goimports` have stdlib and all GOPATH's libs mappings, it's very fast.
 
+**Note:** It supports `.goimportsignore` and ignores `vendor/` directory.
+
 ## Return to the original goimports
 
 You can return to the original goimports by the following:
 
 ```sh
-$ cd $GOPATH/src/golang.org/x/tools
-$ git checkout imports/zstdlib.go
 $ cd $GOPATH/src/golang.org/x/tools/cmd/goimports
 $ go install -a .
 ```
@@ -46,7 +46,6 @@ $ go get github.com/monochromegane/dragon-imports/...
 ## ToDo
 
 - File system notification.
-- Ignore option.
 
 ## Contribution
 
