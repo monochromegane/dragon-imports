@@ -46,8 +46,13 @@ func Imports() error {
 	if err != nil {
 		return err
 	}
+	err = tmp.Sync()
+	if err != nil {
+		return err
+	}
+	tmp.Close()
 
-	return installUsing(tmp)
+	return installUsing(tmp.Name())
 }
 
 type lib struct {
