@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-func fetchGoImportsIgnore(src string) (map[string]struct{}, error) {
-	dirs := make(map[string]struct{})
+func fetchGoImportsIgnore(src string) (map[string]bool, error) {
+	dirs := make(map[string]bool)
 	f, err := os.Open(filepath.Join(src, ".goimportsignore"))
 	if err != nil {
 		return dirs, nil
@@ -20,13 +20,13 @@ func fetchGoImportsIgnore(src string) (map[string]struct{}, error) {
 	for scr.Scan() {
 		dir := scr.Text()
 		if !strings.HasPrefix(dir, "#") {
-			dirs[filepath.Join(src, dir)] = struct{}{}
+			dirs[filepath.Join(src, dir)] = true
 		}
 	}
 	return dirs, scr.Err()
 }
 
-func isSkipDir(fi fileInfo, ignoreDirs map[string]struct{}) bool {
+func isSkipDir(fi fileInfo, ignoreDirs map[string]bool) bool {
 	name := fi.Name()
 	switch name {
 	case "", "testdata", "vendor":
@@ -36,8 +36,7 @@ func isSkipDir(fi fileInfo, ignoreDirs map[string]struct{}) bool {
 	case '.', '_':
 		return true
 	}
-	_, ok := ignoreDirs[filepath.Join(fi.path, fi.Name())]
-	return ok
+	return ignoreDirs[filepath.Join(fi.path, fi.Name())]
 }
 
 func gopathLibs(libChan chan lib) error {
