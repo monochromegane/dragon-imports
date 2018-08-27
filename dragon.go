@@ -36,8 +36,7 @@ func Imports() error {
 	eg.Go(func() error {
 		return gopathLibs(libChan)
 	})
-	err = eg.Wait()
-	if err != nil {
+	if err := eg.Wait(); err != nil {
 		return err
 	}
 	close(libChan)
@@ -46,11 +45,9 @@ func Imports() error {
 	if err != nil {
 		return err
 	}
-	err = tmp.Sync()
-	if err != nil {
+	if err := tmp.Close(); err != nil {
 		return err
 	}
-	tmp.Close()
 
 	return installUsing(tmp.Name())
 }
