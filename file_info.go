@@ -13,10 +13,8 @@ type fileInfo struct {
 
 func (f fileInfo) isDir(follow bool) bool {
 	if follow && f.isSymlink() {
-		if _, err := ioutil.ReadDir(filepath.Join(f.path, f.FileInfo.Name())); err == nil {
-			return true
-		}
-		return false
+		_, err := ioutil.ReadDir(filepath.Join(f.path, f.FileInfo.Name()))
+		return err == nil
 	}
 	return f.FileInfo.IsDir()
 }

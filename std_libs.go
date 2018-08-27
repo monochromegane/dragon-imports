@@ -12,28 +12,16 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	apiFiles = [...]string{
-		"go1.txt",
-		"go1.1.txt",
-		"go1.2.txt",
-		"go1.3.txt",
-		"go1.4.txt",
-		"go1.5.txt",
-		"go1.6.txt",
-		"go1.7.txt",
-		"go1.8.txt",
-		"go1.9.txt",
-		"go1.10.txt",
-	}
-	sym = regexp.MustCompile(`^pkg (\S+).*?, (?:var|func|type|const) ([A-Z]\w*)`)
-)
+var sym = regexp.MustCompile(`^pkg (\S+).*?, (?:var|func|type|const) ([A-Z]\w*)`)
 
 func stdLibs(libChan chan lib) error {
-	apiDir := filepath.Join(build.Default.GOROOT, "api")
+	apiFiles, err := filepath.Glob(filepath.Join(build.Default.GOROOT, "api", "go1.*txt"))
+	if err != nil {
+		return err
+	}
 	eg := &errgroup.Group{}
 	for _, f := range apiFiles {
-		r, err := os.Open(filepath.Join(apiDir, f))
+		r, err := os.Open(f)
 		if err != nil {
 			return err
 		}
