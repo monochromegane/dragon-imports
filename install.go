@@ -4,12 +4,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 )
 
-func installUsing(f *os.File) error {
+func installUsing(fname string) error {
 	current := filepath.Join(outPath(), "zstdlib.go")
-	backup := strings.Replace(current, ".go", ".g_", 1)
+	backup := current + ".bak"
 
 	err := os.Rename(current, backup)
 	if err != nil {
@@ -17,7 +16,7 @@ func installUsing(f *os.File) error {
 	}
 	defer os.Rename(backup, current)
 
-	err = os.Rename(f.Name(), current)
+	err = os.Rename(fname, current)
 	if err != nil {
 		return err
 	}

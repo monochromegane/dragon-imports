@@ -16,11 +16,14 @@ func Imports() error {
 
 	libChan := make(chan lib, 1000)
 	done := make(chan error)
-	tmp, err := ioutil.TempFile("", "dragon-imports")
+	tmp, err := ioutil.TempFile(outPath(), "dragon-imports")
 	if err != nil {
 		return err
 	}
-	defer tmp.Close()
+	defer func(fname string) {
+		tmp.Close()
+		os.Remove(fname)
+	}(tmp.Name())
 
 	go func() {
 		done <- out(libChan, tmp)
@@ -33,8 +36,7 @@ func Imports() error {
 	eg.Go(func() error {
 		return gopathLibs(libChan)
 	})
-	err = eg.Wait()
-	if err != nil {
+	if err := eg.Wait(); err != nil {
 		return err
 	}
 	close(libChan)
@@ -43,8 +45,11 @@ func Imports() error {
 	if err != nil {
 		return err
 	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
 
-	return installUsing(tmp)
+	return installUsing(tmp.Name())
 }
 
 type lib struct {
