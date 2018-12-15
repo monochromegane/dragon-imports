@@ -33,8 +33,8 @@ var stdlib = map[string]map[string]bool{`
 	}
 
 	contains := []string{
-		`"github.com/monochromegane/dragon-imports": map[string]bool{"Imports": true}`,
-		`"unsafe": map[string]bool{`,
+		`"github.com/monochromegane/dragon-imports":map[string]bool{"Imports":true}`,
+		`"unsafe":map[string]bool{`,
 	}
 
 	for _, s := range contains {
