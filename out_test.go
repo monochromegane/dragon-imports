@@ -2,6 +2,7 @@ package dragon
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 )
 
@@ -21,20 +22,24 @@ func TestOut(t *testing.T) {
 
 package imports
 
-var stdlib = map[string]string{
-	"dragon.Imports": "github.com/monochromegane/dragon-imports",
-
-	"unsafe.Alignof":       "unsafe",
-	"unsafe.ArbitraryType": "unsafe",
-	"unsafe.Offsetof":      "unsafe",
-	"unsafe.Pointer":       "unsafe",
-	"unsafe.Sizeof":        "unsafe",
-}
-`
+var stdlib = map[string]map[string]bool{`
 
 	buf := &bytes.Buffer{}
 	out(libChan, buf)
-	if actual := buf.String(); actual != expect {
-		t.Errorf("out should return\n%s\nbut\n%s", expect, actual)
+
+	actual := buf.String()
+	if !strings.HasPrefix(actual, expect) {
+		t.Errorf("out should have prefix\n%s\n  but\n%s", expect, actual)
+	}
+
+	contains := []string{
+		`"github.com/monochromegane/dragon-imports":map[string]bool{"Imports":true}`,
+		`"unsafe":map[string]bool{`,
+	}
+
+	for _, s := range contains {
+		if !strings.Contains(actual, s) {
+			t.Errorf("out should contain \n%s\n  but\n%s", s, actual)
+		}
 	}
 }
