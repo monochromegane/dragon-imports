@@ -43,6 +43,10 @@ $ go install -a .
 $ go get github.com/monochromegane/dragon-imports/...
 ```
 
+**Note:**
+  dragon-imports supports golang.org/x/tools older than [the revision](https://github.com/golang/tools/commit/5bbcdc15656ef390fab5dd6e8daf95354f7171e3).
+  So, I recommend upgrading golang.org/x/tools by `go get -u golang.org/x/tools/...`.
+
 ## ToDo
 
 - File system notification.
