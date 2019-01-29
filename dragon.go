@@ -9,9 +9,12 @@ import (
 )
 
 // Imports generate zstdlib.go from api files and libs in GOPATH.
-func Imports() error {
+func Imports(restore bool) error {
 	if !existGoImports() {
 		return errors.New("goimports command isn't installed")
+	}
+	if restore {
+		return install()
 	}
 
 	libChan := make(chan lib, 1000)
