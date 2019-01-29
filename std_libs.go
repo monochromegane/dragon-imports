@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"go/build"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -36,7 +35,6 @@ func stdLibs(libChan chan lib) error {
 
 				if m := sym.FindStringSubmatch(l); m != nil {
 					libChan <- lib{
-						pkg:    path.Base(m[1]),
 						object: m[2],
 						path:   m[1],
 					}

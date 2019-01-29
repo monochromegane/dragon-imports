@@ -53,7 +53,6 @@ func Imports() error {
 }
 
 type lib struct {
-	pkg    string
 	object string
 	path   string
 }

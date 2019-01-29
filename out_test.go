@@ -11,9 +11,12 @@ func TestOut(t *testing.T) {
 
 	go func() {
 		libChan <- lib{
-			pkg:    "dragon",
 			object: "Imports",
 			path:   "github.com/monochromegane/dragon-imports",
+		}
+		libChan <- lib{
+			object: "Imports",
+			path:   "github.com/someone/dragon-imports",
 		}
 		close(libChan)
 	}()
@@ -34,6 +37,7 @@ var stdlib = map[string]map[string]bool{`
 
 	contains := []string{
 		`"github.com/monochromegane/dragon-imports":map[string]bool{"Imports":true}`,
+		`"github.com/someone/dragon-imports":map[string]bool{"Imports":true}`,
 		`"unsafe":map[string]bool{`,
 	}
 
