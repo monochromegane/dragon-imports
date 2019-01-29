@@ -33,8 +33,7 @@ new `goimports` have stdlib and all GOPATH's libs mappings, it's very fast.
 You can return to the original goimports by the following:
 
 ```sh
-$ cd $GOPATH/src/golang.org/x/tools/cmd/goimports
-$ go install -a .
+$ dragon-imports --restore
 ```
 
 ## Installation
