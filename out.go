@@ -8,20 +8,6 @@ import (
 )
 
 func out(libChan chan lib, w io.Writer) error {
-	libs := map[string]lib{}
-	ambiguous := map[string]bool{}
-	for lib := range libChan {
-		full := lib.path
-		key := lib.pkg + "." + lib.object
-		if exist, ok := libs[key]; ok {
-			if exist.path != full {
-				ambiguous[key] = true
-			}
-		} else {
-			libs[key] = lib
-		}
-	}
-
 	stdlib := map[string]map[string]bool{
 		"unsafe": map[string]bool{
 			"Alignof":       true,
@@ -31,10 +17,7 @@ func out(libChan chan lib, w io.Writer) error {
 			"Sizeof":        true,
 		},
 	}
-	for key, lib := range libs {
-		if ambiguous[key] {
-			continue
-		}
+	for lib := range libChan {
 		objMap, ok := stdlib[lib.path]
 		if !ok {
 			objMap = make(map[string]bool)

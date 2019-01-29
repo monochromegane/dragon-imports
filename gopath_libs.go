@@ -79,7 +79,6 @@ func gopathLibs(libChan chan lib) error {
 			for _, v := range f.Scope.Objects {
 				if ast.IsExported(v.Name) {
 					libChan <- lib{
-						pkg:    pkg,
 						object: v.Name,
 						path:   importPath,
 					}
