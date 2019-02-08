@@ -29,7 +29,7 @@ func fetchGoImportsIgnore(src string) (map[string]bool, error) {
 func isSkipDir(fi fileInfo, ignoreDirs map[string]bool) bool {
 	name := fi.Name()
 	switch name {
-	case "", "internal", "testdata", "vendor":
+	case "", "internal", "testdata", "vendor", "cache":
 		return true
 	}
 	switch name[0] {
