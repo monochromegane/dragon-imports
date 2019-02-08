@@ -6,11 +6,19 @@ import (
 )
 
 func srcDirs() []string {
+	return dirs("src")
+}
+
+func modDirs() []string {
+	return dirs(filepath.Join("pkg", "mod"))
+}
+
+func dirs(path string) []string {
 	gopaths := filepath.SplitList(build.Default.GOPATH)
 
-	srcDirs := make([]string, len(gopaths))
+	dirs := make([]string, len(gopaths))
 	for i, gopath := range gopaths {
-		srcDirs[i] = filepath.Join(gopath, "src")
+		dirs[i] = filepath.Join(gopath, path)
 	}
-	return srcDirs
+	return dirs
 }

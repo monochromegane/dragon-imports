@@ -9,7 +9,7 @@ import (
 )
 
 // Imports generate zstdlib.go from api files and libs in GOPATH.
-func Imports(restore bool) error {
+func Imports(restore, gomodules bool) error {
 	if !existGoImports() {
 		return errors.New("goimports command isn't installed")
 	}
@@ -37,7 +37,11 @@ func Imports(restore bool) error {
 		return stdLibs(libChan)
 	})
 	eg.Go(func() error {
-		return gopathLibs(libChan)
+		if gomodules {
+			return gomoduleLibs(libChan)
+		} else {
+			return gopathLibs(libChan)
+		}
 	})
 	if err := eg.Wait(); err != nil {
 		return err
