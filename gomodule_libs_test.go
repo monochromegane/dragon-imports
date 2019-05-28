@@ -18,13 +18,13 @@ func TestVersionsLatest(t *testing.T) {
 	}
 
 	for expect, v := range expects {
-		versions := &versions{libByVersion: map[string][]lib{}}
+		vers := &versions{libByVersion: map[string][]lib{}}
 		for version, libs := range v {
 			for _, lib := range libs {
-				versions.append(version, lib)
+				vers.append(version, lib)
 			}
 		}
-		libs := versions.latest()
+		libs := vers.latest()
 		for _, lib := range libs {
 			if lib.object != expect {
 				t.Errorf("versions.latest should return latest libs")
