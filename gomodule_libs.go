@@ -33,17 +33,17 @@ func (v *versions) append(version string, l lib) {
 }
 
 func (v *versions) latest() []lib {
-	var versions semver.Versions
+	var semvers semver.Versions
 	for version, _ := range v.libByVersion {
 		sv, err := semver.ParseTolerant(version)
 		if err != nil {
 			continue
 		}
-		versions = append(versions, sv)
+		semvers = append(semvers, sv)
 	}
-	semver.Sort(versions)
+	semver.Sort(semvers)
 
-	latest := versions[len(versions)-1]
+	latest := semvers[len(semvers)-1]
 	if libs, ok := v.libByVersion["v"+latest.String()]; ok {
 		return libs
 	}

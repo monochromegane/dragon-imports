@@ -38,7 +38,7 @@ var stdlib = %#v
 
 func outPath() string {
 	for _, src := range srcDirs() {
-		outPath := filepath.Join(src, "golang.org/x/tools/imports")
+		outPath := filepath.Join(src, "golang.org/x/tools/internal/imports")
 		if _, err := os.Stat(outPath); err == nil {
 			return outPath
 		}
