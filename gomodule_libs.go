@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/blang/semver"
+	"golang.org/x/mod/semver"
 )
 
 type mod struct {
@@ -33,18 +33,11 @@ func (v *versions) append(version string, l lib) {
 }
 
 func (v *versions) latest() []lib {
-	var semvers semver.Versions
+	var latestVer string
 	for version, _ := range v.libByVersion {
-		sv, err := semver.ParseTolerant(version)
-		if err != nil {
-			continue
-		}
-		semvers = append(semvers, sv)
+		latestVer = semver.Max(latestVer, version)
 	}
-	semver.Sort(semvers)
-
-	latest := semvers[len(semvers)-1]
-	if libs, ok := v.libByVersion["v"+latest.String()]; ok {
+	if libs, ok := v.libByVersion[latestVer]; ok {
 		return libs
 	}
 	return []lib{}
